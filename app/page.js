@@ -5,7 +5,7 @@ import './page.module.css';
 import { ZoomInOutlined, ZoomOutOutlined, CloudUploadOutlined, SyncOutlined, TikTokOutlined, TwitterOutlined, InstagramOutlined, YoutubeFilled } from '@ant-design/icons';
 import { degrees, PDFDocument } from 'pdf-lib';
 
-pdfjs.GlobalWorkerOptions.workerSrc = `//unpkg.com/pdfjs-dist@${pdfjs.version}/legacy/build/pdf.worker.min.mjs`;
+pdfjs.GlobalWorkerOptions.workerSrc = 'pdfjs-dist/legacy/build/pdf.worker.min.js';
 
 export default function Home() {
   const [pdfFile, setPdfFile] = useState(null);
