@@ -1,7 +1,7 @@
 # PDF 操作工具 PDF Manipulation Tool
 
-该项目是一个 Web 应用程序，允许用户上传 PDF 文件、旋转其页面、放大/缩小以及下载修改后的版本。它使用 React、用于呈现 PDF 的 `react-pdf` 和用于操作 PDF 页面的 `pdf-lib` 构建。
-This project is a web application that allows users to upload a PDF file, rotate its pages, zoom in/out, and download the modified version. It is built using React, `react-pdf` for rendering the PDF, and `pdf-lib` for manipulating the PDF pages.
+该项目是根据 https://pdf.ai/tools/rotate-pdf 制作的一个 Web 应用程序，允许用户上传 PDF 文件、旋转其页面、放大/缩小以及下载修改后的版本。它使用 React、用于呈现 PDF 的 `react-pdf` 和用于操作 PDF 页面的 `pdf-lib` 构建。
+This project is a web application made based on https://pdf.ai/tools/rotate-pdf that allows users to upload a PDF file, rotate its pages, zoom in/out, and download the modified version. It is built using React, `react-pdf` for rendering the PDF, and `pdf-lib` for manipulating the PDF pages.
 
 ## 功能 Features
 
