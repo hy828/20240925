@@ -2,13 +2,14 @@
 import { useState } from 'react';
 import { Document, Page, pdfjs } from 'react-pdf';
 import './page.module.css';
+import { ZoomInOutlined, ZoomOutOutlined, CloudUploadOutlined, RedoOutlined, TikTokOutlined, TwitterOutlined, InstagramOutlined, YoutubeOutlined } from '@ant-design/icons';
 
 pdfjs.GlobalWorkerOptions.workerSrc = `//unpkg.com/pdfjs-dist@${pdfjs.version}/legacy/build/pdf.worker.min.mjs`;
 
 export default function Home() {
   const [pdfFile, setPdfFile] = useState(null);
   const [loading, setLoading] = useState(false);
-  const [scale, setScale] = useState(1);
+  const [scale, setScale] = useState(0.5);
   const [rotatedPages, setRotatedPages] = useState({});
   const [numPages, setNumPages] = useState(null);
 
@@ -54,28 +55,68 @@ export default function Home() {
   return (
     <div>
       {/* Navigation Bar */}
-      <header style={{ backgroundColor: '#ffffff', padding: '10px', boxShadow: 'none', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <h1 style={{ color: '#000000', margin: 0 }}>PDF.ai</h1>
-        <nav style={{ display: 'flex', gap: '10px' }}>
-          <p>Pricing</p>
-          <p>Chrome extension</p>
-          <p>Use cases</p>
-          <p>Get started</p>
+      <header style={{ padding: '10px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <p style={{ fontFamily: 'serif', fontWeight: '500', fontSize: '20px', padding: '10px' }}>PDF.ai</p>
+        <nav 
+        style={{ display: 'flex', fontWeight: '500', fontSize: '15px', cursor: 'pointer', color: '#000000'}}
+        >
+          <p style={{ padding: '10px' }}
+            onMouseOver={(e) => e.currentTarget.style.textDecoration = 'underline'}
+            onMouseOut={(e) => e.currentTarget.style.textDecoration = 'none'}
+          >
+              Pricing
+          </p>
+          <p style={{ padding: '10px' }}
+            onMouseOver={(e) => e.currentTarget.style.textDecoration = 'underline'}
+            onMouseOut={(e) => e.currentTarget.style.textDecoration = 'none'}
+          >
+              Chrome extension
+          </p>
+          <p style={{ padding: '10px' }}
+            onMouseOver={(e) => e.currentTarget.style.textDecoration = 'underline'}
+            onMouseOut={(e) => e.currentTarget.style.textDecoration = 'none'}
+          >
+              Use cases
+          </p>
+          <p style={{ padding: '10px' }}
+            onMouseOver={(e) => e.currentTarget.style.textDecoration = 'underline'}
+            onMouseOut={(e) => e.currentTarget.style.textDecoration = 'none'}
+          >
+              Get started
+          </p>
         </nav>
       </header>
 
       {/* Main Content */}
-      <main style={{ textAlign: 'center', marginTop: '50px' }}>
-        <h2>Rotate PDF Pages</h2>
-        <p>Simply click on a page to rotate it. You can then download your modified PDF.</p>
+      <main style={{ textAlign: 'center', padding: '60px', backgroundColor: '#f7f5ee', minHeight: '700px' }}>
+      <div style={{ maxWidth: '500px', display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center', margin: '0 auto', marginBottom: '40px' }}>
+        <h1 style={{ fontFamily: 'serif', fontSize: '48px', paddingTop: '15px' }}>Rotate PDF Pages</h1>
+        <p style={{ fontSize: '16px', paddingTop: '30px', color: '#757575', fontWeight: '500' }}>Simply click on a page to rotate it. You can then download your modified PDF.</p>
+      </div>
 
         {/* Upload Section or PDF Controls */}
         {!pdfFile ? (
-          <>
-            <label
-              htmlFor="pdf-file-input"
-            >
-              Click to upload or drag and drop
+          <div style={{ marginTop: '50px', display: 'flex', justifyContent: 'center' }}>
+            <label htmlFor="pdf-file-upload" style={{  }}>
+              <div style={{
+                width: '275px',
+                height: '350px',
+                border: '1px dashed #d6d3d1',
+                borderRadius: '4px',
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                justifyContent: 'center',
+                fontSize: '14px',
+                color: '#616161',
+                backgroundColor: '#ffffff',
+                cursor: 'pointer',
+                fontWeight: '500',
+              }}
+              >
+                <CloudUploadOutlined style={{ fontSize: '32px', marginBottom: '12px' }} />
+                Click to upload or drag and drop
+              </div>
             </label>
             {/* Hidden File Input */}
             <input
@@ -84,82 +125,147 @@ export default function Home() {
               accept="application/pdf"
               className="hidden"
               onChange={handleFileUpload}
+              style={{ display: 'none' }}
             />
-          </>
+          </div>
         ) : (
-          <div style={{ marginTop: '20px' }}>
-            {/* {loading ? (
-              <div>
-                <p>Loading...</p>
-              </div>
-            ) : ( */}
-              <>
-                {/* Control Buttons */}
-                <button onClick={() => handleRotatePage("all")}>Rotate all</button>
-                <button onClick={handleRemovePDF}>Remove PDF</button>
-                <button onClick={handleZoomIn}>Zoom In</button>
-                <button onClick={handleZoomOut}>Zoom Out</button>
+          <div>
+            {/* Control Buttons */}
+            <button onClick={() => {
+              for (let i = 1; i <= numPages; i++) {
+                handleRotatePage(i);
+              }
+            }}
+            style={{ backgroundColor: '#ff612f', padding: '10px 12px', border: 'none', color: 'white', fontWeight: '500', fontSize: '16px', borderRadius: '4px' }}
+            >
+              Rotate all
+            </button>
+            <button onClick={handleRemovePDF} style={{ backgroundColor: '#1f2937', padding: '10px 12px', border: 'none', color: 'white', fontWeight: '500', fontSize: '16px', borderRadius: '4px', marginLeft: '16px' }}>Remove PDF</button>
+            <button onClick={handleZoomIn} style={{ border: 'none', backgroundColor: 'white', borderRadius: '50%', width: '40px', height: '40px', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', fontSize: '18px', marginLeft: '16px' }}> <ZoomInOutlined /> </button>
+            <button onClick={handleZoomOut} style={{ border: 'none', backgroundColor: 'white', borderRadius: '50%', width: '40px', height: '40px', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', fontSize: '18px', marginLeft: '16px' }}> <ZoomOutOutlined /> </button>
 
-                {/* PDF Preview */}
-                <div style={{ marginTop: '20px', textAlign: 'center' }}>
-                  <Document file={pdfFile} onLoadSuccess={handlePdfLoadSuccess} renderMode="canvas" onLoadError={handlePdfLoadError}>
-                    {Array.from(new Array(numPages), (el, index) => (
-                      <div key={`page_${index + 1}`} style={{ position: 'relative', display: 'inline-block' }}>
-                        <Page pageNumber={index + 1} scale={scale} rotate={rotatedPages[index + 1] || 0} />
-                        <button onClick={() => handleRotatePage(index + 1)} style={{ position: 'absolute', top: '10px', right: '10px' }}>
-                          rotate
-                        </button>
-                      </div>
-                    ))}
-                  </Document>
-                </div>
+            {/* PDF Preview */}
+            <div style={{ marginTop: '20px', marginLeft: '10px', marginRight: '10px', display: 'flex', justifyContent: 'center' }}>
+              <Document
+                file={pdfFile}
+                onLoadSuccess={handlePdfLoadSuccess}
+                renderMode="canvas"
+                onLoadError={handlePdfLoadError}
+              >
+                {Array.from(new Array(numPages), (el, index) => (
+                  <div key={`page_${index + 1}`} style={{
+                    position: 'relative',
+                    border: '1px solid #ccc',
+                    borderRadius: '8px',
+                    padding: '10px', // Add padding around the PDF
+                    backgroundColor: '#fff',
+                    boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
+                    cursor: 'pointer',
+                  }}
+                  onMouseOver={(e) => e.currentTarget.style.backgroundColor = '#e5e7eb'}
+                  onMouseOut={(e) => e.currentTarget.style.backgroundColor = '#ffffff'}
+                  >
+                    <Page
+                      pageNumber={index + 1}
+                      scale={scale} // Display at original size * 50%
+                      rotate={rotatedPages[index + 1] || 0}
+                      renderTextLayer={false}
+                      renderAnnotationLayer={false}
+                    />
+                    <div style={{ textAlign: 'center', marginTop: '5px' }}>
+                      {index + 1}
+                    </div>
+                    <button
+                      onClick={() => handleRotatePage(index + 1)}
+                      style={{
+                        position: 'absolute',
+                        zIndex: '10',
+                        top: '4px',
+                        right: '4px',
+                        backgroundColor: '#ff612f',
+                        color: '#ffffff',
+                        border: 'none',
+                        borderRadius: '50%',
+                        padding: '4px',
+                        cursor: 'pointer',
+                      }}
+                    >
+                      <RedoOutlined />
+                    </button>
+                  </div>
+                ))}
+              </Document>
+            </div>
 
-                {/* Download Button */}
-                <button style={{ marginTop: '20px' }}>Download PDF</button>
-              </>
+            {/* Download Button */}
+            <button style={{ backgroundColor: '#ff612f', padding: '10px 12px', border: 'none', color: 'white', fontWeight: '500', fontSize: '16px', borderRadius: '4px', marginTop: '20px' }}>Download</button>
           </div>
         )}
-
-        
       </main>
 
       {/* Footer */}
-      <footer style={{ marginTop: '50px', padding: '20px', backgroundColor: '#f8f8f8', display: 'flex', justifyContent: 'space-between' }}>
-        <div style={{ display: 'flex', flexDirection: 'row', gap: '20px' }}>
+      <footer style={{ marginTop: '64px', maxWidth: '1280px', marginLeft: 'auto', marginRight: 'auto', borderTop: '1px solid #ccc', padding: '64px 32px 32px 32px ', display: 'flex', flexDirection: 'row', justifyContent: 'space-between', color: '#4b5563', fontSize: '14px', display: 'grid', gridTemplateColumns: `repeat(3, 1fr)`, gap: '32px', borderColor: 'rgba(17, 24, 39, .1)' }}>
+        <>
           <div>
-          <p>Chat with any PDF: Ask questions, get summaries, find information, and more.</p>
+            <img src="./favicon.ico" alt="PDF.ai" style={{ width: '28px' }} />
+            <p style={{ marginTop: '32px', fontSize: '14px', lineHeight: '24px', color: '#757575' }}>Chat with any PDF: Ask questions, get summaries, find information, and more.</p>
+            {/* Social Media Icons */}
+            <div style={{ marginTop: '32px', display: 'flex', gap: '20px' }}>
+              <a>
+                <i style={{ fontSize: '24px', color: '#bdbdbd' }}><TikTokOutlined /></i>
+              </a>
+              <a>
+                <i style={{ fontSize: '24px', color: '#bdbdbd', marginLeft: '24px' }}><TwitterOutlined /></i>
+              </a>
+              <a>
+                <i style={{ fontSize: '24px', color: '#bdbdbd', marginLeft: '24px' }}><InstagramOutlined /></i>
+              </a>
+              <a>
+                <i style={{ fontSize: '24px', color: '#bdbdbd', marginLeft: '24px' }}><YoutubeOutlined /></i>
+              </a>
+            </div>
           </div>
-          <div>
-            <h5>Products</h5>
-            <p>Use cases</p>
-            <p>Chrome extension</p>
-            <p>API docs</p>
-            <p>Pricing</p>
-            <p>Video tutorials</p>
-            <p>Resources</p>
-            <p>Blog</p>
-            <p>FAQ</p>
-          </div>
-          <div>
-            <h5>We also built</h5>
-            <p>Resume AI Scanner</p>
-            <p>Invoice AI Scanner</p>
-            <p>AI Quiz Generator</p>
-            <p>QuickyAI</p>
-            <p>Docsium</p>
-            <p>PDF GPTs</p>
-            <p>PDF AI Generator</p>
-            <p>Other PDF tools</p>
-          </div>
-          <div>
-            <h5>Company</h5>
-            <p>PDF.ai vs ChatPDF</p>
-            <p>PDF.ai vs Acrobat Reader</p>
-            <p>Legal</p>
-            <p>Affiliate program</p>
-            <p>Investor</p>
-          </div>
-        </div>
+          <div style={{ gridColumn: 'span 2' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: `repeat(3, 1fr)`, gap: '32px' }}>
+              <div>
+                <h3 style={{ margin: '4px 0px', color: '#212121' }}>Products</h3>
+                <ul style={{ marginTop: '24px', listStyle: 'none', gap: '24px', display: 'flex', flexDirection: 'column', marginBottom: '24px' }}>
+                  <li>Use cases</li>
+                  <li>Chrome extension</li>
+                  <li>API docs</li>
+                  <li>Pricing</li>
+                  <li>Video tutorials</li>
+                  <li>Resources</li>
+                  <li>Blog</li>
+                  <li>FAQ</li>
+                </ul>
+              </div>
+              <div>
+                <h3 style={{ margin: '4px 0px', color: '#212121' }}>We also built</h3>
+                <ul style={{ marginTop: '24px', listStyle: 'none', gap: '24px', display: 'flex', flexDirection: 'column', marginBottom: '24px' }}>
+                  <li>Resume AI Scanner</li>
+                  <li>Invoice AI Scanner</li>
+                  <li>AI Quiz Generator</li> 
+                  <li>QuickyAI</li>  
+                  <li>Docsium</li> 
+                  <li>PDF GPTs</li>  
+                  <li>PDF AI Generator</li>  
+                  <li>Other PDF tools</li>
+                </ul>
+              </div>
+              <div>
+                <h3 style={{ margin: '4px 0px', color: '#212121' }}>Company</h3>
+                <ul style={{ marginTop: '24px', listStyle: 'none', gap: '24px', display: 'flex', flexDirection: 'column', marginBottom: '24px'  }}>
+                  <li>PDF.ai vs ChatPDF</li>
+                  <li>PDF.ai vs Acrobat Reader</li>
+                  <li>Legal</li>
+                  <li>Affiliate program</li>
+                  <li>Investor</li>
+                </ul>
+              </div>
+            </div>
+          </div> 
+        </>
       </footer>
     </div>
   );
