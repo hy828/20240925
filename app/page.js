@@ -1,95 +1,167 @@
-import Image from "next/image";
-import styles from "./page.module.css";
+"use client";
+import { useState } from 'react';
+import { Document, Page, pdfjs } from 'react-pdf';
+import './page.module.css';
+
+pdfjs.GlobalWorkerOptions.workerSrc = `//unpkg.com/pdfjs-dist@${pdfjs.version}/legacy/build/pdf.worker.min.mjs`;
 
 export default function Home() {
-  return (
-    <div className={styles.page}>
-      <main className={styles.main}>
-        <Image
-          className={styles.logo}
-          src="https://nextjs.org/icons/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol>
-          <li>
-            Get started by editing <code>app/page.js</code>.
-          </li>
-          <li>Save and see your changes instantly.</li>
-        </ol>
+  const [pdfFile, setPdfFile] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const [scale, setScale] = useState(1);
+  const [rotatedPages, setRotatedPages] = useState({});
+  const [numPages, setNumPages] = useState(null);
 
-        <div className={styles.ctas}>
-          <a
-            className={styles.primary}
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className={styles.logo}
-              src="https://nextjs.org/icons/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
+  const handleFileUpload = (event) => {
+    const file = event?.target?.files[0];
+    if (file) {
+      console.log("Uploaded file:", file);
+      setLoading(true);
+      setPdfFile(file);
+    }
+  };
+
+  const handleRotatePage = (pageNumber) => {
+    setRotatedPages((prev) => ({
+      ...prev,
+      [pageNumber]: (prev[pageNumber] || 0) + 90,
+    }));
+  };
+
+  const handleRemovePDF = () => {
+    setPdfFile(null);
+    setRotatedPages({});
+  };
+
+  const handleZoomIn = () => {
+    setScale((prev) => prev + 0.1);
+  };
+
+  const handleZoomOut = () => {
+    setScale((prev) => (prev > 0.5 ? prev - 0.1 : prev));
+  };
+
+  const handlePdfLoadSuccess = ({ numPages }) => {
+    setNumPages(numPages);
+    setLoading(false);
+  };
+
+  const handlePdfLoadError = (error) => {
+    console.error('Error loading PDF:', error);
+    setLoading(false);
+  };
+
+  return (
+    <div>
+      {/* Navigation Bar */}
+      <header style={{ backgroundColor: '#ffffff', padding: '10px', boxShadow: 'none', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <h1 style={{ color: '#000000', margin: 0 }}>PDF.ai</h1>
+        <nav style={{ display: 'flex', gap: '10px' }}>
+          <p>Pricing</p>
+          <p>Chrome extension</p>
+          <p>Use cases</p>
+          <p>Get started</p>
+        </nav>
+      </header>
+
+      {/* Main Content */}
+      <main style={{ textAlign: 'center', marginTop: '50px' }}>
+        <h2>Rotate PDF Pages</h2>
+        <p>Simply click on a page to rotate it. You can then download your modified PDF.</p>
+
+        {/* Upload Section or PDF Controls */}
+        {!pdfFile ? (
+          <>
+            <label
+              htmlFor="pdf-file-input"
+            >
+              Click to upload or drag and drop
+            </label>
+            {/* Hidden File Input */}
+            <input
+              id="pdf-file-upload"
+              type="file"
+              accept="application/pdf"
+              className="hidden"
+              onChange={handleFileUpload}
             />
-            Deploy now
-          </a>
-          <a
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-            className={styles.secondary}
-          >
-            Read our docs
-          </a>
-        </div>
+          </>
+        ) : (
+          <div style={{ marginTop: '20px' }}>
+            {/* {loading ? (
+              <div>
+                <p>Loading...</p>
+              </div>
+            ) : ( */}
+              <>
+                {/* Control Buttons */}
+                <button onClick={() => handleRotatePage("all")}>Rotate all</button>
+                <button onClick={handleRemovePDF}>Remove PDF</button>
+                <button onClick={handleZoomIn}>Zoom In</button>
+                <button onClick={handleZoomOut}>Zoom Out</button>
+
+                {/* PDF Preview */}
+                <div style={{ marginTop: '20px', textAlign: 'center' }}>
+                  <Document file={pdfFile} onLoadSuccess={handlePdfLoadSuccess} renderMode="canvas" onLoadError={handlePdfLoadError}>
+                    {Array.from(new Array(numPages), (el, index) => (
+                      <div key={`page_${index + 1}`} style={{ position: 'relative', display: 'inline-block' }}>
+                        <Page pageNumber={index + 1} scale={scale} rotate={rotatedPages[index + 1] || 0} />
+                        <button onClick={() => handleRotatePage(index + 1)} style={{ position: 'absolute', top: '10px', right: '10px' }}>
+                          rotate
+                        </button>
+                      </div>
+                    ))}
+                  </Document>
+                </div>
+
+                {/* Download Button */}
+                <button style={{ marginTop: '20px' }}>Download PDF</button>
+              </>
+          </div>
+        )}
+
+        
       </main>
-      <footer className={styles.footer}>
-        <a
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="https://nextjs.org/icons/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="https://nextjs.org/icons/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="https://nextjs.org/icons/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
+
+      {/* Footer */}
+      <footer style={{ marginTop: '50px', padding: '20px', backgroundColor: '#f8f8f8', display: 'flex', justifyContent: 'space-between' }}>
+        <div style={{ display: 'flex', flexDirection: 'row', gap: '20px' }}>
+          <div>
+          <p>Chat with any PDF: Ask questions, get summaries, find information, and more.</p>
+          </div>
+          <div>
+            <h5>Products</h5>
+            <p>Use cases</p>
+            <p>Chrome extension</p>
+            <p>API docs</p>
+            <p>Pricing</p>
+            <p>Video tutorials</p>
+            <p>Resources</p>
+            <p>Blog</p>
+            <p>FAQ</p>
+          </div>
+          <div>
+            <h5>We also built</h5>
+            <p>Resume AI Scanner</p>
+            <p>Invoice AI Scanner</p>
+            <p>AI Quiz Generator</p>
+            <p>QuickyAI</p>
+            <p>Docsium</p>
+            <p>PDF GPTs</p>
+            <p>PDF AI Generator</p>
+            <p>Other PDF tools</p>
+          </div>
+          <div>
+            <h5>Company</h5>
+            <p>PDF.ai vs ChatPDF</p>
+            <p>PDF.ai vs Acrobat Reader</p>
+            <p>Legal</p>
+            <p>Affiliate program</p>
+            <p>Investor</p>
+          </div>
+        </div>
       </footer>
     </div>
   );
 }
+
