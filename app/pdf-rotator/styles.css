@@ -1,0 +1,17 @@
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+/* Set global default font to Inter, Segoe UI, etc. */
+body {
+    font-family: 'Inter', 'Segoe UI', 'Helvetica Neue', sans-serif;
+}
+
+/* Apply Tiempos font to specific headings or other elements where needed */
+h1, p.serif {
+    font-family: 'Tiempos', serif;
+}
+  

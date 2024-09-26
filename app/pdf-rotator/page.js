@@ -3,6 +3,7 @@ import { useState } from 'react';
 import { Document, Page, pdfjs } from 'react-pdf';
 import { ZoomInOutlined, ZoomOutOutlined, CloudUploadOutlined, SyncOutlined, TikTokOutlined, TwitterOutlined, InstagramOutlined, YoutubeFilled } from '@ant-design/icons';
 import { degrees, PDFDocument } from 'pdf-lib';
+import './styles.css';
 
 pdfjs.GlobalWorkerOptions.workerSrc = `//unpkg.com/pdfjs-dist@${pdfjs.version}/legacy/build/pdf.worker.min.mjs`;
 const documentOptions = {
@@ -103,7 +104,15 @@ export default function PDFRotator() {
     <div>
       {/* Navigation Bar */}
       <header style={{ padding: '10px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <p style={{ fontFamily: 'serif', fontWeight: '500', fontSize: '20px', padding: '10px' }}>PDF.ai</p>
+        <div style={{ display: 'flex', alignItems: 'center' }}>
+          {/* Favicon image */}
+          <img 
+            src="/favicon.ico" 
+            alt="favicon" 
+            style={{ width: '25px', height: '25px' }} 
+          />
+          <p className="serif" style={{ fontFamily: 'serif', fontWeight: '500', fontSize: '20px', padding: '10px' }}>PDF.ai</p>
+        </div>
         <nav 
         style={{ display: 'flex', fontWeight: '500', fontSize: '15px', cursor: 'pointer', color: '#000000'}}
         >
@@ -254,7 +263,7 @@ export default function PDFRotator() {
                 options={documentOptions}
                 file={pdfFile}
                 onLoadSuccess={handlePdfLoadSuccess}
-                renderMode="svg"
+                renderMode="canvas"
                 onLoadError={handlePdfLoadError}
               >
                 {Array.from(new Array(numPages), (el, index) => (
@@ -273,8 +282,8 @@ export default function PDFRotator() {
                     {/* Wrapper for centering the page inside the container */}
                     <div
                       style={{
-                        width: `${scale * 500}px`,
-                        height: `${scale * 700}px`,
+                        width: `${scale * 600}px`,
+                        height: `${scale * 850}px`,
                         display: 'flex',
                         justifyContent: 'center',
                         alignItems: 'center',
