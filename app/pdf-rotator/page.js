@@ -5,6 +5,10 @@ import { ZoomInOutlined, ZoomOutOutlined, CloudUploadOutlined, SyncOutlined, Tik
 import { degrees, PDFDocument } from 'pdf-lib';
 
 pdfjs.GlobalWorkerOptions.workerSrc = `//unpkg.com/pdfjs-dist@${pdfjs.version}/legacy/build/pdf.worker.min.mjs`;
+const documentOptions = {
+	standardFontDataUrl: `https://unpkg.com/pdfjs-dist@${pdfjs.version}/standard_fonts`,
+	cMapUrl: `https://unpkg.com/pdfjs-dist@${pdfjs.version}/cmaps/`,
+};
 
 export default function PDFRotator() {
   const [pdfFile, setPdfFile] = useState(null);
@@ -15,10 +19,11 @@ export default function PDFRotator() {
 
   const handleFileUpload = (event) => {
     const file = event?.target?.files[0];
-    if (file) {
-      console.log("Uploaded file:", file);
+    if (file && file.type === 'application/pdf') {
       setLoading(true);
       setPdfFile(file);
+    } else {
+      console.error("Unsupported file format. Please upload a PDF.");
     }
   };
 
@@ -30,6 +35,7 @@ export default function PDFRotator() {
   };
 
   const handleRemovePDF = () => {
+    event.target.value = '';
     setPdfFile(null);
     setScale(0.4);
     setRotatedPages({});
@@ -59,35 +65,38 @@ export default function PDFRotator() {
       console.error("No PDF file uploaded.");
       return;
     }
+    try {
+      // Load the existing PDF file
+      const arrayBuffer = await pdfFile.arrayBuffer();
+      const existingPdfDoc = await PDFDocument.load(arrayBuffer);
 
-    // Load the existing PDF file
-    const arrayBuffer = await pdfFile.arrayBuffer();
-    const existingPdfDoc = await PDFDocument.load(arrayBuffer);
+      // Create a new PDFDocument
+      const pdfDoc = await PDFDocument.create();
 
-    // Create a new PDFDocument
-    const pdfDoc = await PDFDocument.create();
+      // Loop through all pages and add them to the new document
+      for (let i = 0; i < numPages; i++) {
+        const [copiedPage] = await pdfDoc.copyPages(existingPdfDoc, [i]);
+        const rotateDegree = rotatedPages[i + 1] || 0; // Get the rotation degree
+        copiedPage.setRotation(degrees(rotateDegree)); // Rotate the page
+        pdfDoc.addPage(copiedPage); // Add the rotated page to the new document
+      }
 
-    // Loop through all pages and add them to the new document
-    for (let i = 0; i < numPages; i++) {
-      const [copiedPage] = await pdfDoc.copyPages(existingPdfDoc, [i]);
-      const rotateDegree = rotatedPages[i + 1] || 0; // Get the rotation degree
-      copiedPage.setRotation(degrees(rotateDegree)); // Rotate the page
-      pdfDoc.addPage(copiedPage); // Add the rotated page to the new document
+      // Save the new PDF document
+      const pdfBytes = await pdfDoc.save();
+
+      // Create a blob and download
+      const blob = new Blob([pdfBytes], { type: 'application/pdf' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = 'rotated.pdf'; // Name of the downloaded file
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+    } catch (error) {
+      console.error("Error creating or downloading the rotated PDF:", error);
     }
-
-    // Save the new PDF document
-    const pdfBytes = await pdfDoc.save();
-
-    // Create a blob and download
-    const blob = new Blob([pdfBytes], { type: 'application/pdf' });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement('a');
-    link.href = url;
-    link.download = 'rotated.pdf'; // Name of the downloaded file
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-    URL.revokeObjectURL(url);
   };
 
   return (
@@ -170,7 +179,6 @@ export default function PDFRotator() {
               id="pdf-file-upload"
               type="file"
               accept="application/pdf"
-              className="hidden"
               onChange={handleFileUpload}
               style={{ display: 'none' }}
             />
@@ -204,6 +212,7 @@ export default function PDFRotator() {
             <button 
               onClick={handleZoomIn} 
               disabled={scale >= 0.8} 
+              aria-label="Zoom in"
               style={{
                 border: 'none', 
                 backgroundColor: 'white', 
@@ -222,6 +231,7 @@ export default function PDFRotator() {
             <button
               onClick={handleZoomOut} 
               disabled={scale <= 0.3} 
+              aria-label="Zoom out"
               style={{
                 border: 'none', 
                 backgroundColor: 'white', 
@@ -241,9 +251,10 @@ export default function PDFRotator() {
             {/* PDF Preview */}
             <div style={{ marginTop: '20px', marginLeft: '10px', marginRight: '10px' }}>
               <Document
+                options={documentOptions}
                 file={pdfFile}
                 onLoadSuccess={handlePdfLoadSuccess}
-                renderMode="canvas"
+                renderMode="svg"
                 onLoadError={handlePdfLoadError}
               >
                 {Array.from(new Array(numPages), (el, index) => (
